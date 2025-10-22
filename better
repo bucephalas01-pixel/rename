@@ -1,0 +1,29 @@
+#!/bin/bash
+
+read -rp "Enter folder path containing images (leave blank for current): " DIR
+DIR=${DIR:-.}
+read -rp "Enter prefix for renamed files (default: image): " PREFIX
+PREFIX=${PREFIX:-image}
+
+if [ -d "$DIR" ]; then
+  cd "$DIR" || exit
+  FILES=(*.jpg *.jpeg *.png)
+  COUNT=1
+  RENAMED=0
+
+  for file in "${FILES[@]}"; do
+    [ -e "$file" ] || continue
+    newname="${PREFIX}_${COUNT}.${file##*.}"
+    echo "Rename '$file' → '$newname'?"
+    read -rp "Confirm (y/n): " CONFIRM
+    if [[ "$CONFIRM" =~ ^[Yy]$ ]]; then
+      mv -n "$file" "$newname"
+      ((RENAMED++))
+    fi
+    ((COUNT++))
+  done
+
+  echo "✅ $RENAMED image files renamed."
+else
+  echo "❌ Directory not found: $DIR"
+fi
